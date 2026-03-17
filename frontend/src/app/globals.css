@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --primary: #7c3aed;
+  --accent: #06b6d4;
+  --text: #f1f5f9;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "SF Pro Display", sans-serif;
+  background: radial-gradient(circle at top left, #0b1120, #020617 40%, #020617),
+    radial-gradient(circle at bottom right, #1d2535, #020617 50%, #020617);
+  color: var(--text);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(124, 58, 237, 0.18) 0, transparent 55%),
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(6, 182, 212, 0.18) 0,
+      transparent 55%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  z-index: -1;
+}
+
+.glass-panel {
+  @apply bg-slate-900/60 border border-slate-600/40 shadow-xl shadow-black/40 rounded-2xl backdrop-blur-xl;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium text-slate-50 shadow-lg shadow-indigo-950/60 transition-all duration-200 hover:shadow-indigo-900/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500 focus-visible:ring-offset-slate-950;
+  background-image: linear-gradient(
+    135deg,
+    #7c3aed,
+    #4f46e5,
+    #06b6d4
+  );
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium text-slate-100 border border-slate-500/40 bg-slate-900/60 backdrop-blur-md shadow-md shadow-black/40 transition-all duration-200 hover:border-slate-300/60 hover:bg-slate-800/70;
+}
+
+.pill {
+  @apply inline-flex items-center gap-2 rounded-full border border-slate-600/40 bg-slate-900/70 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-300/90;
+}
+
+.section-title {
+  @apply text-lg font-semibold tracking-tight text-slate-50;
+}
+
+.section-subtitle {
+  @apply text-xs font-medium uppercase tracking-[0.16em] text-slate-400;
+}
+
+.card-grid {
+  @apply grid gap-6 md:grid-cols-2 xl:grid-cols-3;
+}
+
