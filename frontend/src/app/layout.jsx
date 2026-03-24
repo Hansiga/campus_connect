@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "CampusConnect",
-  description: "Modern campus communication platform",
+  title: "Kongu Connect",
+  description: "Smart campus communication platform",
 };
 
 export default function RootLayout({ children }) {

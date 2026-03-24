@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
 import { Sidebar } from "../../components/Sidebar";
 import { Card } from "../../components/Card";
+import { getNotices, getEvents } from "../../lib/api";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -16,6 +17,9 @@ export default function DashboardPage() {
     notices: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
+  const [notices, setNotices] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loadingContent, setLoadingContent] = useState(true);
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
   const [noticeDepartment, setNoticeDepartment] = useState("");
@@ -27,7 +31,7 @@ export default function DashboardPage() {
 
     const token = localStorage.getItem("token");
     if (!token) {
-      router.replace("/login");
+      router.replace("/login?message=Please login first");
       return;
     }
 
@@ -85,6 +89,38 @@ export default function DashboardPage() {
     } catch {
       setLoadingStats(false);
     }
+
+    const fetchContent = async () => {
+      try {
+        setLoadingContent(true);
+        const [noticesRes, eventsRes] = await Promise.all([
+          getNotices(token),
+          getEvents(token),
+        ]);
+
+        const allNotices = Array.isArray(noticesRes.data) ? noticesRes.data : [];
+        const allEvents = Array.isArray(eventsRes.data) ? eventsRes.data : [];
+
+        // Sort and take top 3
+        setNotices(
+          allNotices
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, 3)
+        );
+        setEvents(
+          allEvents
+            .sort((a, b) => new Date(a.event_date) - new Date(b.event_date))
+            .slice(0, 3)
+        );
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("Error fetching dashboard content:", err);
+      } finally {
+        setLoadingContent(false);
+      }
+    };
+
+    fetchContent();
   }, [router]);
 
   const handleCreateNotice = async (event) => {
@@ -141,6 +177,25 @@ export default function DashboardPage() {
     }
   };
 
+  if (loadingContent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-500 border-t-transparent"></div>
+          <p className="text-sm font-medium text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return <p>No events available</p>;
+  }
+
+  if (notices.length === 0) {
+    return <p>No notices yet</p>;
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-950/90 text-slate-50">
       <Navbar />
@@ -153,106 +208,66 @@ export default function DashboardPage() {
         <section className="flex min-h-[60vh] flex-1 flex-col gap-5 overflow-hidden">
           <header className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1">
-              <p className="section-subtitle">Dashboard</p>
+              <p className="text-[0.6rem] font-bold text-violet-400 uppercase tracking-[0.2em]">Assuring the Best</p>
               <h1 className="text-xl font-semibold tracking-tight text-slate-50 md:text-2xl">
                 Campus overview
               </h1>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {role === "admin" ? (
-                <>
-                  <button
-                    type="button"
-                    className="btn-secondary text-xs md:text-sm"
-                  >
-                    Admin controls
-                  </button>
-                  <Link
-                    href="/dashboard/create-notice"
-                    className="btn-primary text-xs md:text-sm"
-                  >
-                    Create Notice
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/notices"
-                    className="btn-secondary text-xs md:text-sm"
-                  >
-                    Notices
-                  </Link>
-                  <Link
-                    href="/events"
-                    className="btn-primary text-xs md:text-sm"
-                  >
-                    Events
-                  </Link>
-                </>
-              )}
             </div>
           </header>
 
           <div className="card-grid">
             <Card
-              badge="Today"
+              badge="Latest"
               title="Upcoming events"
-              description="A quick snapshot of what&apos;s happening across campus. Connect backend APIs to surface live data here."
+              description="A quick snapshot of what&apos;s happening across campus."
             >
-              <ul className="space-y-2 text-sm text-slate-300">
-                <li className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/60 px-3 py-2">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-slate-100">
-                      Research symposium
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      Science auditorium • 4:00 PM
-                    </span>
-                  </div>
-                  <span className="pill bg-slate-900/90 text-[0.65rem]">
-                    Example
-                  </span>
-                </li>
-                <li className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/60 px-3 py-2">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-slate-100">
-                      Design club meetup
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      Innovation lab • 6:30 PM
-                    </span>
-                  </div>
-                  <span className="pill bg-slate-900/90 text-[0.65rem]">
-                    Mock data
-                  </span>
-                </li>
-              </ul>
+              {events.length === 0 ? (
+                <p className="text-sm text-slate-500 italic">No events available</p>
+              ) : (
+                <ul className="space-y-2 text-sm text-slate-300">
+                  {events.map((event) => (
+                    <li
+                      key={event.id}
+                      className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/60 px-3 py-2 transition hover:border-slate-500/60"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-medium text-slate-100">
+                          {event.title}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {event.venue} • {new Date(event.event_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </Card>
 
             <Card
               badge="Highlights"
-              title="Pinned notices"
-              description="Key information surfaced for students and faculty. Wire this panel to the notices API to show real content."
+              title="Recent notices"
+              description="Key information surfaced for students and faculty."
             >
-              <div className="space-y-2 text-sm text-slate-300">
-                <div className="rounded-xl border border-slate-700/60 bg-slate-900/60 p-3">
-                  <p className="text-sm font-medium text-slate-100">
-                    Exam week schedule
-                  </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Centralized overview of all exam slots, rooms, and
-                    invigilators.
-                  </p>
+              {notices.length === 0 ? (
+                <p className="text-sm text-slate-500 italic">No notices available</p>
+              ) : (
+                <div className="space-y-2 text-sm text-slate-300">
+                  {notices.map((notice) => (
+                    <div
+                      key={notice.id}
+                      className="rounded-xl border border-slate-700/60 bg-slate-900/60 p-3 transition hover:border-slate-500/60"
+                    >
+                      <p className="text-sm font-medium text-slate-100">
+                        {notice.title}
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-xs text-slate-400">
+                        {notice.content}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <div className="rounded-xl border border-slate-700/60 bg-slate-900/60 p-3">
-                  <p className="text-sm font-medium text-slate-100">
-                    Library renovations
-                  </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Temporary reading spaces and updated opening hours.
-                  </p>
-                </div>
-              </div>
+              )}
             </Card>
 
             {role === "admin" && (

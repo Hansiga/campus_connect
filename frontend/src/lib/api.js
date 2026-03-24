@@ -44,3 +44,25 @@ export function getEvents(token) {
   const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
   return api.get("/events", config);
 }
+
+/**
+ * Fetch comments for a notice.
+ * @param {string|number} noticeId
+ * @returns {Promise<{ data: { comments: array } }>}
+ */
+export function getComments(noticeId) {
+  return api.get(`/comments/${noticeId}`);
+}
+
+/**
+ * Post a new comment.
+ * @param {{ notice_id: string|number, comment_text: string }} data
+ * @param {string} token - JWT token for authorization
+ * @returns {Promise<{ data: { message: string } }>}
+ */
+export function postComment(data, token) {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  return api.post("/comments", data, config);
+}

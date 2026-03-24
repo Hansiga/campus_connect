@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
 const noticeRoutes = require("./routes/noticeRoutes");
-const eventRoutes = require("./routes/eventRoutes");
+const eventRoutes = require("./routes/events");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const commentsRoutes = require("./routes/comments");
 

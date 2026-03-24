@@ -28,5 +28,27 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
+// GET /api/comments/:noticeId
+router.get("/:noticeId", async (req, res) => {
+  const { noticeId } = req.params;
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT c.id, u.name AS username, c.comment_text, c.created_at 
+       FROM comments c 
+       JOIN users u ON c.user_id = u.id 
+       WHERE c.notice_id = ? 
+       ORDER BY c.created_at DESC`,
+      [noticeId]
+    );
+
+    return res.json({ comments: rows });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
 

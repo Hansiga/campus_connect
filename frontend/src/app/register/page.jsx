@@ -80,7 +80,7 @@ export default function RegisterPage() {
             title="Create your campus account"
             description="Faculty, staff, and students can request access. Roles and permissions are enforced by the backend."
           >
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
               <div className="flex gap-3">
                 <div className="w-1/2 space-y-1.5">
                   <label
@@ -92,11 +92,11 @@ export default function RegisterPage() {
                   <input
                     id="name"
                     type="text"
-                    placeholder="Alex Rivera"
+                    placeholder="Hansiga"
                     className="w-full rounded-xl border border-slate-700/70 bg-slate-900/60 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 shadow-inner shadow-black/40 outline-none transition focus:border-violet-400/80 focus:ring-2 focus:ring-violet-500/60"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    autoComplete="name"
+                    autoComplete="new-name"
                     required
                   />
                 </div>
@@ -133,7 +133,7 @@ export default function RegisterPage() {
                   className="w-full rounded-xl border border-slate-700/70 bg-slate-900/60 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 shadow-inner shadow-black/40 outline-none transition focus:border-violet-400/80 focus:ring-2 focus:ring-violet-500/60"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
+                  autoComplete="new-email"
                   required
                 />
               </div>
@@ -216,7 +216,7 @@ export default function RegisterPage() {
           </Card>
 
           <div className="space-y-4">
-            <span className="pill">Why CampusConnect?</span>
+            <span className="pill">Why Kongu Connect?</span>
             <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl">
               A single pane of glass for{" "}
               <span className="bg-gradient-to-r from-violet-400 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
@@ -224,10 +224,8 @@ export default function RegisterPage() {
               </span>
               .
             </h1>
-            <p className="max-w-xl text-sm text-slate-300">
-              Announcements, events, and student services brought together in a
-              focused, distraction-free interface. Built for busy campuses that
-              need signal, not noise.
+            <p className="max-w-xl text-sm font-medium text-slate-400 uppercase tracking-widest">
+              Assuring the Best
             </p>
 
             <div className="card-grid">

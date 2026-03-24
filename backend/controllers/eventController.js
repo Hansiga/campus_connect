@@ -1,34 +1,29 @@
 const pool = require("../config/db");
 
 exports.createEvent = async (req, res) => {
-  const { title, description, date, venue } = req.body || {};
+  const { title, description, event_date, venue, form_link } = req.body || {};
 
-  if (!title || !description || !date || !venue) {
+  if (!title || !description || !event_date || !venue) {
     return res.status(400).json({
-      message: "title, description, date and venue are required",
+      message: "title, description, event_date and venue are required",
     });
   }
 
   try {
     const [result] = await pool.execute(
-      "INSERT INTO events (title, description, date, venue, created_by) VALUES (?, ?, ?, ?, ?)",
-      [
-        String(title).trim(),
-        String(description),
-        new Date(date),
-        String(venue).trim(),
-        req.user.id,
-      ]
+      "INSERT INTO events (title, description, event_date, venue, form_link, created_by) VALUES (?, ?, ?, ?, ?, ?)",
+      [title, description, event_date, venue, form_link, req.user.id]
     );
 
     return res.status(201).json({
       message: "Event created successfully",
       event: {
         id: result.insertId,
-        title: String(title).trim(),
-        description: String(description),
-        date: new Date(date),
-        venue: String(venue).trim(),
+        title,
+        description,
+        event_date,
+        venue,
+        form_link,
         created_by: req.user.id,
       },
     });
@@ -42,7 +37,7 @@ exports.createEvent = async (req, res) => {
 exports.getEvents = async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      "SELECT id, title, description, date, venue, created_by, created_at FROM events ORDER BY date ASC"
+      "SELECT id, title, description, event_date, venue, form_link, created_by, created_at FROM events WHERE event_date >= CURDATE() ORDER BY event_date ASC"
     );
     return res.json(rows);
   } catch (err) {
@@ -56,10 +51,12 @@ exports.getEventById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [rows] = await pool.execute(
-      "SELECT id, title, description, date, venue, created_by, created_at FROM events WHERE id = ? LIMIT 1",
+    const result = await pool.query(
+      "SELECT * FROM events WHERE id = ? LIMIT 1",
       [id]
     );
+
+    const [rows] = result;
 
     if (!rows || rows.length === 0) {
       return res.status(404).json({ message: "Event not found" });
@@ -75,12 +72,12 @@ exports.getEventById = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   const { id } = req.params;
-  const { title, description, date, venue } = req.body || {};
+  const { title, description, event_date, venue, form_link } = req.body || {};
 
-  if (!title && !description && !date && !venue) {
+  if (!title && !description && !event_date && !venue && !form_link) {
     return res.status(400).json({
       message:
-        "At least one field (title, description, date, venue) is required",
+        "At least one field (title, description, event_date, venue, form_link) is required",
     });
   }
 
@@ -104,13 +101,17 @@ exports.updateEvent = async (req, res) => {
       fields.push("description = ?");
       values.push(String(description));
     }
-    if (date) {
-      fields.push("date = ?");
-      values.push(new Date(date));
+    if (event_date) {
+      fields.push("event_date = ?");
+      values.push(new Date(event_date));
     }
     if (venue) {
       fields.push("venue = ?");
       values.push(String(venue).trim());
+    }
+    if (form_link !== undefined) {
+      fields.push("form_link = ?");
+      values.push(form_link ? String(form_link).trim() : null);
     }
 
     values.push(id);

@@ -2,9 +2,11 @@ export default function Home() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
         <div className="text-center space-y-6">
-          <h1 className="text-5xl font-bold">CampusConnect</h1>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            Kongu Connect
+          </h1>
           <p className="text-slate-400">
-            Smart Campus Event & Digital Notice Board
+            Smart campus communication platform
           </p>
   
           <div className="flex gap-4 justify-center">
